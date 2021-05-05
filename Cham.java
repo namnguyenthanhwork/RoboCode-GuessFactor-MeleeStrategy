@@ -375,7 +375,7 @@ public class Cham extends AdvancedRobot {
 			// Set the energy of the bullets fired based o the energy of us an enemy to limit energy expenditure in a wasteful manner and shoot.
 			BULLET_POWER = Math.min(3, Math.min(this.getEnergy(), e.getEnergy()) / (double) 4);
 			wave.bulletPower = BULLET_POWER;
-			// if energy < 2 and distance enemy < 500 => don't gun and move around battlefield
+			// if energy < 2 and distance enemy < 500, decrease bullet power
 			if (getEnergy() < 2 && e.getDistance() < 500)
 				wave.bulletPower = 0.1;
 			else if (e.getDistance() >= 500)
