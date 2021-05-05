@@ -15,6 +15,7 @@ import robocode.util.Utils;
  */
 public class Cham extends AdvancedRobot {
 	static double BULLET_POWER = 3;
+	
 	// create Robot class
 	class Robot extends Point2D.Double {
 		public long scanTime;  // represents the scan time of the robot
@@ -71,12 +72,13 @@ public class Cham extends AdvancedRobot {
 		private final AdvancedRobot robot; // the robot wants to create the wave
 		private final Rectangle2D fireField = new Rectangle2D.Double(WALL_MARGIN, WALL_MARGIN,
 				BATTLE_FIELD_WIDTH - WALL_MARGIN * 2, BATTLE_FIELD_HEIGHT - WALL_MARGIN * 2); // represents a fire area.
-		//private final double enemyFirePower = 3;  // represents the bullet damage of enemy
 		private double direction = 0.4; // direction of enemy
+		
 		// init
 		Movement_1VS1(AdvancedRobot _robot) {
 			this.robot = _robot;
 		}
+		
 		// scan robot
 		public void onScannedRobot(ScannedRobotEvent e) {
 			// Create a robot that symbolizes the enemy robot and calculate values such as absolute bearing angle, distance.
@@ -129,10 +131,12 @@ public class Cham extends AdvancedRobot {
 		private int[] buffer;
 		private double distanceTraveled;
 		private final AdvancedRobot robot;
+		
 		// init
 		Wave(AdvancedRobot _robot) {
 			this.robot = _robot;
 		}
+		
 		// use for testing the conditions to calculate whether the bullet can hit the target or not.
 		public boolean test() {
 			advance();
@@ -142,10 +146,12 @@ public class Cham extends AdvancedRobot {
 			}
 			return false;
 		}
+		
 		// calculate offset of the bearing angle = direction * 0.05 - ( index of the highest data bin -14).
 		double mostVisitedBearingOffset() {
 			return (lateralDirection * BIN_WIDTH) * (mostVisitedBin() - MIDDLE_BIN);
 		}
+		
 		// get data for all bins from data aggregated and analyzed.
 		void setSegmentations(double distance, double velocity, double lastVelocity) {
 			int distanceIndex = (int) (distance / (MAX_DISTANCE / DISTANCE_INDEXES));
@@ -153,14 +159,17 @@ public class Cham extends AdvancedRobot {
 			int lastVelocityIndex = (int) Math.abs(lastVelocity / 2);
 			buffer = statBuffers[distanceIndex][velocityIndex][lastVelocityIndex];
 		}
+		
 		// calculate the travel distance of the bullet
 		private void advance() {
 			distanceTraveled += Rules.getBulletSpeed(bulletPower);
 		}
+		
 		// check to see if the fired bullet reaches the target
 		private boolean hasArrived() {
 			return distanceTraveled > gunLocation.distance(targetLocation) - WALL_MARGIN;
 		}
+		
 		// return the current data bin.
 		private int currentBin() {
 			int bin = (int) Math.round(((Utils.normalRelativeAngle
@@ -168,6 +177,7 @@ public class Cham extends AdvancedRobot {
 					(lateralDirection * BIN_WIDTH)) + MIDDLE_BIN);
 			return (int) Utility.clamp(bin, 0, BINS - 1);
 		}
+		
 		// return the index of highest data bin
 		private int mostVisitedBin() {
 			int mostVisited = MIDDLE_BIN;
@@ -222,7 +232,7 @@ public class Cham extends AdvancedRobot {
 	private static Movement_1VS1 movement1VS1; // object performs how the robot moves in solo mode.
 	
 	// init
-	 {
+	{
 		movement1VS1 = new Movement_1VS1(this);
 	}
 	
@@ -288,7 +298,7 @@ public class Cham extends AdvancedRobot {
 			// Set the value of the variable which stored the previous velocity of the enemy robot as 0
 			// (when starting the game, the enemy robot doesn't have the previous velocity so we set it as 0)
 			preEnemyVelocity = 0;
-			while(true)
+			while (true)
 				turnRadarRightRadians(Double.POSITIVE_INFINITY); // Turn radar right infinitely to scan enemy robot
 			
 		}
@@ -297,6 +307,7 @@ public class Cham extends AdvancedRobot {
 	// scan robot
 	public void onScannedRobot(ScannedRobotEvent e) {
 		changeColor(); // change color my robot in battlefield
+		
 		// if getOthers > 1 => chaos mode
 		if (getOthers() > 1) {
 			// we get information about the robot in the enemy robot list which has the name is the same as the name of the scanned robot.
@@ -363,7 +374,12 @@ public class Cham extends AdvancedRobot {
 					enemy.absoluteBearingRadians - getGunHeadingRadians() + wave.mostVisitedBearingOffset()));
 			// Set the energy of the bullets fired based o the energy of us an enemy to limit energy expenditure in a wasteful manner and shoot.
 			BULLET_POWER = Math.min(3, Math.min(this.getEnergy(), e.getEnergy()) / (double) 4);
-			wave.bulletPower= BULLET_POWER;
+			wave.bulletPower = BULLET_POWER;
+			// if energy < 2 and distance enemy < 500 => don't gun and move around battlefield
+			if (getEnergy() < 2 && e.getDistance() < 500)
+				wave.bulletPower = 0.1;
+			else if (e.getDistance() >= 500)
+				wave.bulletPower = 1.1;
 			setFire(wave.bulletPower);
 			// Check the remaining energy of the robot. If there is still enough energy, continue adding an event to create waves for the next wave
 			if (getEnergy() >= wave.bulletPower)
