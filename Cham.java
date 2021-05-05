@@ -14,6 +14,7 @@ import robocode.util.Utils;
 	@algorithm: Melee Strategy + GuessFactor
  */
 public class Cham extends AdvancedRobot {
+	static double BULLET_POWER = 3;
 	// create Robot class
 	class Robot extends Point2D.Double {
 		public long scanTime;  // represents the scan time of the robot
@@ -70,7 +71,7 @@ public class Cham extends AdvancedRobot {
 		private final AdvancedRobot robot; // the robot wants to create the wave
 		private final Rectangle2D fireField = new Rectangle2D.Double(WALL_MARGIN, WALL_MARGIN,
 				BATTLE_FIELD_WIDTH - WALL_MARGIN * 2, BATTLE_FIELD_HEIGHT - WALL_MARGIN * 2); // represents a fire area.
-		private final double enemyFirePower = 3;  // represents the bullet damage of enemy
+		//private final double enemyFirePower = 3;  // represents the bullet damage of enemy
 		private double direction = 0.4; // direction of enemy
 		// init
 		Movement_1VS1(AdvancedRobot _robot) {
@@ -94,8 +95,8 @@ public class Cham extends AdvancedRobot {
 					enemy.dist * (DEFAULT_EVASION - tryTime / 100.0))) && tryTime < MAX_TRY_TIME)
 				tryTime++;
 			// Change the direction of movement
-			if ((Math.random() < (Rules.getBulletSpeed(enemyFirePower) / REVERSE_TUNER) / enemy.dist ||
-					tryTime > (enemy.dist / Rules.getBulletSpeed(enemyFirePower) / WALL_BOUNCE_TUNER)))
+			if ((Math.random() < (Rules.getBulletSpeed(BULLET_POWER) / REVERSE_TUNER) / enemy.dist ||
+					tryTime > (enemy.dist / Rules.getBulletSpeed(BULLET_POWER) / WALL_BOUNCE_TUNER)))
 				direction = -direction;
 			// calculate the angle to move
 			double angle = Utility.absoluteBearing(robotLocation, robotDestination) - robot.getHeadingRadians();
@@ -221,7 +222,7 @@ public class Cham extends AdvancedRobot {
 	private static Movement_1VS1 movement1VS1; // object performs how the robot moves in solo mode.
 	
 	// init
-	public Cham() {
+	 {
 		movement1VS1 = new Movement_1VS1(this);
 	}
 	
@@ -287,9 +288,9 @@ public class Cham extends AdvancedRobot {
 			// Set the value of the variable which stored the previous velocity of the enemy robot as 0
 			// (when starting the game, the enemy robot doesn't have the previous velocity so we set it as 0)
 			preEnemyVelocity = 0;
-			do {
+			while(true)
 				turnRadarRightRadians(Double.POSITIVE_INFINITY); // Turn radar right infinitely to scan enemy robot
-			} while (true);
+			
 		}
 	}
 	
@@ -321,9 +322,9 @@ public class Cham extends AdvancedRobot {
 					(en.energy == 0 ? Double.MIN_VALUE : en.distance(myRobot) * 0.1) :
 					en.distance(myRobot) * 0.75) : en.distance(myRobot);
 			// In case there have only one enemy robot, we will lock radar with achieving always target enemy to shot
-			if (getOthers() == 1) {
+			if (getOthers() == 1)
 				setTurnRadarLeftRadians(getRadarTurnRemainingRadians());
-			}
+			
 			// If the targeting robot has status is dead or has shootAbleScore is greater than shootAbleScore of our robot,
 			// we will convert the target into a robot that has just been scanned
 			if (!targetBot.alive || en.shootAbleScore < targetBot.shootAbleScore)
@@ -361,7 +362,8 @@ public class Cham extends AdvancedRobot {
 			setTurnGunRightRadians(Utils.normalRelativeAngle(
 					enemy.absoluteBearingRadians - getGunHeadingRadians() + wave.mostVisitedBearingOffset()));
 			// Set the energy of the bullets fired based o the energy of us an enemy to limit energy expenditure in a wasteful manner and shoot.
-			wave.bulletPower = Math.min(2.5, Math.min(this.getEnergy(), e.getEnergy()) / (double) 4);
+			BULLET_POWER = Math.min(3, Math.min(this.getEnergy(), e.getEnergy()) / (double) 4);
+			wave.bulletPower= BULLET_POWER;
 			setFire(wave.bulletPower);
 			// Check the remaining energy of the robot. If there is still enough energy, continue adding an event to create waves for the next wave
 			if (getEnergy() >= wave.bulletPower)
