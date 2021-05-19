@@ -1,6 +1,7 @@
 # Introduction
 ## Overview
 This project is my robot for the game RoboCode
+- You should read docs in our project ^^
 - https://robocode.sourceforge.io/
 - https://github.com/robo-code/robocode
 
@@ -12,9 +13,8 @@ Chaos mode
   - Movement: 
     - Just random moving in the same direction. 
     - Wall-smooth: implemented by myself. The code is huge, but it works nicely. May need huge refactor, so I won't, lol!!!
-    - Hitting wall or Enemies: reverse direction
-Solo mode
-2. <strong>TheUnfoldingRobot</strong>:
+    - 1 enemie: reverse direction Solo mode.
+2. <strong>The Unfolding Robot</strong>:
   - My advanced robot compare to Cham.
     I named it after reading the book "Reinventing Organizations": the robot is on the journey of unfolding itself.
   - In general, it will behave differently when 1-on-1 and melee (battle with many bots). It combine strategies for Radar, Gun and Movement differently depend on the situations.
@@ -97,6 +97,7 @@ List of sample code: http://old.robowiki.net/robowiki?CodeSnippets
 Some tutorial, terms and algorithm for your robot: 
 - http://robowiki.net/wiki/Tutorials
 - https://www.ibm.com/developerworks/library/j-robotips/index.html
+- https://robowiki.net/wiki/Melee_Strategy#Evaluating_your_Melee_bot
 
 Radar:
   - Basic information: http://robowiki.net/wiki/Melee_Radar
